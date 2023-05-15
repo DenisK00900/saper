@@ -229,7 +229,7 @@ public:
     }
     void update()
     {
-            if (curr_flame <= flames - 1)
+            if (curr_flame <= flames - 2)
             {
                 curr_sub_flame++;
                 if (curr_sub_flame >= sub_flames)
@@ -247,6 +247,55 @@ public:
     void draw_flame(int x, int y, int f)
     {
         anim[f].draw(x, y);
+    }
+};
+class animO
+{
+public:
+    int flames = 0;
+    spr* anim;
+    int sub_flames = 0;
+
+    int curr_flame = 0;
+    int curr_sub_flame = 0;
+    bool playing = false;
+
+    void set(string way, int f, int Sf)
+    {
+        flames = f;
+        anim = new spr[flames];
+        for (int i = 0; i < f; i++)
+        {
+            anim[i].set_texture(way + "_" + to_string((i)/100) + to_string(((i)/10)%10) + to_string((i)%10%10));
+        }
+        sub_flames = Sf;
+    }
+    void update()
+    {
+        if (playing)
+        if (curr_flame <= flames - 2)
+        {
+            curr_sub_flame++;
+            if (curr_sub_flame >= sub_flames)
+            {
+                curr_sub_flame = 0;
+                curr_flame++;
+            }
+        }
+        else
+        {
+            playing = false;
+        }
+    }
+    void draw(int x, int y)
+    {
+        anim[curr_flame].draw(x, y);
+    }
+    void play()
+    {
+        playing = true;
+        curr_flame = 0;
+        curr_sub_flame = 0;
     }
 };
 
@@ -345,6 +394,7 @@ borderN saper_mines_32_b;
 borderN saper_mines_48_b;
 borderN saper_mines_64_b;
 spr logo;
+animO saper_expl;
 
 int saper_time_record_32 = 59599;
 int saper_time_record_48 = 59599;
@@ -444,6 +494,7 @@ void open_cell(int px, int py)
             bx = px;
             by = py;
             saper_gameover_bool = true;
+            saper_expl.play();
         }
         else
         {
@@ -509,6 +560,8 @@ void load()
     saper_mines_base.set_texture("data/texture/saper_mines_base");
 
     logo.set_texture("data/texture/logo");
+
+    saper_expl.set("data/texture/expl/expl_", 60, 1);
 }
 void predef()
 {
@@ -658,6 +711,9 @@ void saper_update()
                     else if (saper_map[i][j].mine) saper_cells[10].draw(i * 60 + 420, j * 60 + 60);
                 }
             }
+
+    saper_expl.update();
+    saper_expl.draw(bx * 60 + 30 + 420 - 210, by * 60 + 30 + 60 - 198);
 }
 void update()
 {
